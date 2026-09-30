@@ -1,0 +1,35 @@
+seed: 42
+dataset:
+  name: cit
+  raw_dir: data/raw/cit
+  file_pattern: "*.xlsx"
+  recursive: false
+  allow_missing_schema: true
+preprocessing:
+  mode: offline
+  sort_by_timestamp: true
+  validity_min: 0.5
+  interpolate: true
+  interpolation_limit: 5
+  smoothing:
+    method: rolling_mean
+    window: 5
+  normalization:
+    kind: participant
+  pupil_baseline:
+    enabled: true
+    fraction: 0.1
+features:
+  mode: aggregated
+split:
+  subject_independent: true
+  train_size: 0.7
+  val_size: 0.15
+  test_size: 0.15
+model:
+  family: baseline
+  name: logistic_regression
+training:
+  output_dir: outputs
+evaluation:
+  positive_label: 1
