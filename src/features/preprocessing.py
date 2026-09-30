@@ -122,26 +122,25 @@ def standardize(frame: pd.DataFrame, kind: str | None) -> pd.DataFrame:
 
 def normalize_pupil_baseline(frame: pd.DataFrame, fraction: float = 0.1) -> pd.DataFrame:
     """Normalize pupil values against a trial-initial baseline when possible."""
+    if not 0 < fraction <= 1:
+        raise ValueError("Pupil baseline fraction must be in (0, 1].")
     if frame["pupil"].isna().all():
         return frame
 
     frame = frame.copy()
 
-    def _normalize(group: pd.DataFrame) -> pd.DataFrame:
-        if group["pupil"].notna().sum() == 0:
-            return group
-        baseline_count = max(1, int(len(group) * fraction))
-        baseline = group["pupil"].iloc[:baseline_count].mean()
-        if pd.isna(baseline) or baseline == 0:
-            return group
-        group["pupil"] = (group["pupil"] - baseline) / baseline
-        return group
+    def _normalize(pupil: pd.Series) -> pd.Series:
+        baseline_count = max(1, int(len(pupil) * fraction))
+        baseline = pupil.iloc[:baseline_count].mean()
+        if pd.isna(baseline) or baseline <= 0:
+            return pupil
+        return (pupil - baseline) / baseline
 
-    return (
-        frame.groupby(["participant_id", "trial_id"], group_keys=False)
-        .apply(_normalize)
-        .reset_index(drop=True)
+    # A Series transform preserves every metadata column on pandas 2 and 3.
+    frame["pupil"] = frame.groupby(["participant_id", "trial_id"])["pupil"].transform(
+        _normalize
     )
+    return frame
 
 
 def preprocess_eye_tracking(frame: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
@@ -162,12 +161,14 @@ def preprocess_eye_tracking(frame: pd.DataFrame, config: dict[str, Any]) -> pd.D
     else:
         raise ValueError(f"Unsupported preprocessing mode: {mode}")
 
-    normalization = config.get("normalization", {})
-    frame = standardize(frame, kind=normalization.get("kind"))
-
     pupil_cfg = config.get("pupil_baseline", {})
     if pupil_cfg.get("enabled", False):
         frame = normalize_pupil_baseline(frame, fraction=float(pupil_cfg.get("fraction", 0.1)))
+
+    # Relative pupil change must be calculated from physical diameters,
+    # before z-scoring can introduce negative or near-zero baselines.
+    normalization = config.get("normalization", {})
+    frame = standardize(frame, kind=normalization.get("kind"))
 
     frame = _ensure_metadata_columns(frame)
     return frame.reset_index(drop=True)

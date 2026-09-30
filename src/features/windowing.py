@@ -23,6 +23,8 @@ def create_sliding_windows(
     stride: int,
 ) -> WindowedDataset:
     """Create weakly labeled sliding windows from trial streams."""
+    if window_size <= 0 or stride <= 0:
+        raise ValueError("Window size and stride must be positive.")
     windows: list[np.ndarray] = []
     labels: list[int] = []
     participant_ids: list[str] = []

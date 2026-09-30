@@ -22,6 +22,14 @@ LOGGER = get_logger(__name__)
 
 def _load_or_synthetic(config: dict, allow_synthetic_debug: bool) -> pd.DataFrame:
     dataset_cfg = config["dataset"]
+    if dataset_cfg["name"].lower() == "synthetic":
+        LOGGER.warning("Using synthetic debug data; metrics are not research results.")
+        return make_synthetic_eye_tracking_dataset(
+            n_participants=int(dataset_cfg.get("n_participants", 12)),
+            trials_per_participant=int(dataset_cfg.get("trials_per_participant", 8)),
+            samples_per_trial=int(dataset_cfg.get("samples_per_trial", 128)),
+            seed=int(config.get("seed", 42)),
+        )
     try:
         return load_dataset(
             dataset_name=dataset_cfg["name"],
