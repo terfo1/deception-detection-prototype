@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible processing, training, or packaging failure.
+title: '[Bug] '
+body:
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include the command and config. Use synthetic or anonymized data.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, dependency versions, and commit hash.
+    validations:
+      required: true

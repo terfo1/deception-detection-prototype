@@ -1,87 +1,153 @@
-# Deception Detection Prototype
+# Eye-tracking Scientific Processing Prototype
 
-Research prototype for classification of deception-related or concealed-recognition patterns in eye-tracking temporal data under controlled experimental conditions.
+[![CI](https://github.com/terfo1/deception-detection-prototype/actions/workflows/ci.yml/badge.svg)](https://github.com/terfo1/deception-detection-prototype/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-This repository is intentionally framed as a controlled experimental classification pipeline, not a universal lie detector.
+A small Python research tool for processing eye-tracking tables, extracting
+trial features, and evaluating classifiers for a controlled Concealed Information
+Test (CIT). It includes a reproducible synthetic demo, automated tests, and a
+GitHub Actions pipeline that tests, builds, and publishes versioned packages.
 
-## Starting Dataset Choice
+The target is concealed knowledge in a specific experiment. The current module
+does not establish accuracy for general deception detection.
 
-This initial version is built around the Zenodo dataset `Eye tracking as a Tool for deception detection with CIT` (DOI `10.5281/zenodo.18525952`).
+## Quick start: no external dataset required
 
-Why this dataset first:
-
-- It is directly about concealed knowledge / deception-related gaze behavior under a Concealed Information Test paradigm.
-- It contains eye-tracking recordings from 39 participants and explicit experimental metadata.
-- The published structure uses per-recording spreadsheet files, which is practical for an adapter-based ingestion layer.
-- It is more immediately usable than `Bag-of-Lies`, which is multimodal and less convenient for fully reproducible first-pass setup.
-
-`Bag-of-Lies` is still relevant and the codebase includes a placeholder adapter entry for future extension.
-
-## Installation
+Python 3.10 or newer is required. Run from the repository root:
 
 ```bash
+git clone https://github.com/terfo1/deception-detection-prototype.git
+cd deception-detection-prototype
 python -m venv .venv
-.venv\Scripts\activate
-pip install -e .
 ```
 
-## Dataset Placement
+Activate the environment on Windows PowerShell:
 
-Automatic download is not implemented in this first version because the datasets are hosted externally and may change structure or access rules.
+```powershell
+.venv\Scripts\Activate.ps1
+```
 
-For the CIT dataset:
+Or on Linux/macOS:
 
-1. Download the `.xlsx` files from `https://zenodo.org/records/18525952`.
-2. Place them under `data/raw/cit/`.
+```bash
+source .venv/bin/activate
+```
 
-Expected example:
+```bash
+python -m pip install -e '.[dev]'
+python scripts/train.py --config configs/synthetic_baseline.yaml
+python -m pytest -m 'not deep'
+python -m ruff check .
+```
+
+The demo generates 24 synthetic participants with 8 trials each, processes them,
+splits by participant, trains logistic regression, and writes these files:
+
+```text
+outputs/synthetic_demo/
+  metrics/logistic_regression_metrics.json
+  figures/logistic_regression_confusion_matrix.png
+  figures/logistic_regression_roc_curve.png
+  checkpoints/logistic_regression.pkl
+```
+
+Metrics describe synthetic debug data and must not be reported as scientific
+evidence. Generated files are excluded from Git.
+
+## What the module does
+
+1. Maps tabular exports to a shared schema with participant, trial, timestamp,
+   gaze coordinates, pupil diameter, validity, and label.
+2. Filters invalid samples, interpolates within trials, and smooths signals.
+3. Calculates pupil change relative to the initial trial baseline, then applies
+   optional standardization while preserving participant and trial IDs.
+4. Extracts aggregate trial features or sequence windows that stay within trials.
+5. Splits participants into training, validation, and test groups.
+6. Trains a classifier and exports metrics, figures, and a checkpoint.
+
+| Component | Location |
+|---|---|
+| Raw-data schema and adapters | `src/data/` |
+| Processing and feature extraction | `src/features/` |
+| Baseline and sequence models | `src/models/` |
+| Training and participant splitting | `src/training/` |
+| Metrics and plots | `src/evaluation/` |
+| Command-line training tool | `scripts/train.py` |
+| Reproducible configs | `configs/` |
+| Automated tests | `tests/` |
+| CI and release workflow | `.github/workflows/ci.yml` |
+
+## Chosen technologies
+
+| Technology | Reason for choosing it |
+|---|---|
+| Python | A concise language with a mature scientific computing ecosystem. |
+| pandas + NumPy | Table/schema handling and efficient numeric features/windows. |
+| scikit-learn | Established baseline models, scaling pipelines, group splits, and metrics. |
+| Matplotlib | Exports reproducible confusion matrices and ROC figures without a GUI. |
+| openpyxl | Reads the source dataset's Excel format. |
+| PyYAML | Stores experiment parameters separately from implementation. |
+| PyTorch, optional | Supports gradient-based LSTM and TCN sequence models. |
+| pytest + pytest-cov | Regression/integration tests and coverage reports. |
+| Ruff | Fast checks for common Python coding errors. |
+| Git + GitHub Actions | Versioned research code, issue tracking, and automated verification/releases. |
+
+PyTorch is optional to keep the basic processing tool lightweight. XGBoost is
+also optional: install `python -m pip install -e '.[xgboost]'` before selecting it.
+No web framework or database is needed for this offline module.
+
+## Running with CIT data
+
+The source dataset is
+[Eye tracking as a Tool for deception detection with CIT](https://zenodo.org/records/18525952),
+DOI `10.5281/zenodo.18525952`. Its description reports 39 participants.
+Download the spreadsheets independently and place them in `data/raw/cit/`:
 
 ```text
 data/raw/cit/CIT Recording1.xlsx
 data/raw/cit/CIT Recording2.xlsx
 ```
 
-For `Bag-of-Lies`:
-
-- Place any future tabular eye-tracking exports under `data/raw/bag_of_lies/`.
-- The current repository contains a placeholder adapter registration, but not a finalized parser because the available public materials do not fully specify a stable raw tabular export schema.
-
-## Run Training
-
-Baseline model on aggregated features:
-
 ```bash
 python scripts/train.py --config configs/cit_baseline.yaml
-```
-
-LSTM on sliding windows:
-
-```bash
+python -m pip install -e '.[deep]'
 python scripts/train.py --config configs/cit_lstm.yaml
 ```
 
-If no external dataset is present, you can run a sanity-check pipeline with synthetic data:
+Available baseline names: `logistic_regression`, `random_forest`, `svm`,
+`xgboost`. Available sequence names: `lstm`, `tcn`. Change `model.name` in a
+copied config to select a compatible model family. Real-data parsing and
+scientific validity limitations are tracked in
+[GitHub Issues](https://github.com/terfo1/deception-detection-prototype/issues)
+and [known issues](docs/KNOWN_ISSUES.md).
+
+## Automated verification and release
 
 ```bash
-python scripts/train.py --config configs/cit_baseline.yaml --allow-synthetic-debug
+python -m pip install -e '.[dev,deep]'
+python -m pytest --cov=src --cov-report=term-missing
+python -m ruff check .
+python -m build
 ```
 
-This synthetic mode is only for verifying code execution and should not be used for research claims.
+Tests check metadata preservation, trial-local pupil baselines, window boundaries,
+participant separation, Excel column mapping, known metric values, CLI execution,
+baseline artifacts, and tiny LSTM/TCN training runs. They assess software behavior;
+they do not validate real-world deception detection.
 
-## Current Scope
+GitHub Actions runs on pushes to `main`, pull requests, version tags, and manual
+dispatch. Core tests run on Python 3.10/pandas 2 and Python 3.12/pandas 3. A separate
+CPU job tests PyTorch models. Reports, demo outputs, and package distributions
+are retained as workflow artifacts. A `v*` tag publishes a GitHub Release only
+after the core, sequence, and package jobs succeed. No PyPI account is needed.
 
-Implemented:
+See [the project report](docs/PROJECT_REPORT.md) for the assignment requirements,
+architecture, test strategy, and release process; see
+[the Russian submission guide](docs/ASSIGNMENT_RU.md) for a concise checklist.
 
-- adapter-based tabular dataset loading
-- offline and online-safe preprocessing
-- aggregated features and sliding windows
-- subject-independent splitting
-- baseline models and deep sequence models
-- checkpointing and evaluation artifact generation
-- streaming-style prediction aggregation
+## License and contribution
 
-Limitations:
-
-- fixation extraction is currently heuristic rather than vendor-specific
-- `Bag-of-Lies` parsing is a TODO
-- live deployment is not implemented
+The software is distributed under the [MIT License](LICENSE). External datasets
+retain their own licenses and access conditions; MIT does not relicense them.
+Raw participant files, local environments, and model outputs are excluded from
+the repository. See [CONTRIBUTING.md](CONTRIBUTING.md) for the Git/issue workflow.

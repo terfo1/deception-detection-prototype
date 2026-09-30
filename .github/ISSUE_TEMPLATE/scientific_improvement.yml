@@ -1,0 +1,17 @@
+name: Scientific improvement
+description: Propose better segmentation, features, or validation.
+title: '[Research] '
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Scientific problem
+      description: Explain the current limitation and cite relevant evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Proposed method and acceptance criteria
+    validations:
+      required: true
