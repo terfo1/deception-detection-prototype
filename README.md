@@ -77,6 +77,30 @@ evidence. Generated files are excluded from Git.
 | Automated tests | `tests/` |
 | CI and release workflow | `.github/workflows/ci.yml` |
 
+## Multi-agent workflow
+
+The existing pipeline can also be run through six specialized agents and a
+bounded deterministic orchestrator. It provides typed state, signal quality,
+saved-model inference, verification, JSON reports, execution logs, and per-agent
+call statistics. No additional dependencies or web backend are required.
+
+```bash
+python examples/multi_agent_demo.py
+```
+
+This explicitly synthetic example trains outside the agents and runs inference
+without labels on a held-out participant. See the
+[multi-agent architecture and CLI guide](docs/MULTI_AGENT_ARCHITECTURE_RU.md)
+for real-file/model contracts, configuration, limitations, and the diagram.
+The current processing is offline; agent orchestration does not establish
+real-time or scientifically validated deception detection.
+
+For a portable visual demonstration with step-by-step playback and three actual
+success/failure scenarios, run `python examples/multi_agent_demo.py --open`
+(or double-click `examples/show_demo.cmd` on this Windows setup). The generated
+HTML works offline and can be shared as one file. See the
+[presentation walkthrough](docs/DEMO_GUIDE_RU.md).
+
 ## Chosen technologies
 
 | Technology | Reason for choosing it |
@@ -144,6 +168,18 @@ after the core, sequence, and package jobs succeed. No PyPI account is needed.
 See [the project report](docs/PROJECT_REPORT.md) for the assignment requirements,
 architecture, test strategy, and release process; see
 [the Russian submission guide](docs/ASSIGNMENT_RU.md) for a concise checklist.
+
+## Development context and dissertation plan
+
+For continued development, start with [AGENTS.md](AGENTS.md), the
+[project context](docs/PROJECT_CONTEXT.md), and
+[current work status](docs/WORK_STATUS.md). Accepted decisions and open proposals
+are tracked in [the decision log](docs/DECISIONS.md).
+The [dissertation implementation plan](docs/THESIS_IMPLEMENTATION_PLAN_RU.md)
+describes the work required for the intended streaming research tool;
+planned capabilities are not claims about the current prototype.
+Use the [experiment record template](docs/templates/EXPERIMENT_RECORD.md)
+for reproducible research runs.
 
 ## License and contribution
 

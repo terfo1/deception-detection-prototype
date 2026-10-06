@@ -25,6 +25,23 @@ CIT model accuracy. Track work in the repository's GitHub Issues.
 Historical locally generated metrics have not been committed: they were obtained
 before these preprocessing fixes and are not evidence for the corrected pipeline.
 
+## Multi-agent layer (2026-10-06)
+
+The offline multi-agent CLI can infer with existing baseline/LSTM/TCN checkpoints
+without labels. It requires an explicit ModelSpec for target/class semantics,
+timestamp units, preprocessing, checksum, and sequence architecture/channels.
+Older checkpoints cannot automatically prove agreement with that declaration.
+The old training-label fallbacks remain; the new inference path bypasses them.
+
+Quality/verification thresholds are engineering settings, not scientifically
+validated criteria. The default model-confidence policy is unspecified and yields
+INCONCLUSIVE. Existing feature heuristics and offline processing are preserved.
+The cooperative deadline does not interrupt a hung synchronous/native operation.
+Files without session IDs rely on the caller's explicit single-session declaration;
+unknown physical boundaries cannot be recovered. No device SDK, physical live test,
+web backend, or independent scientific validation is provided by this layer.
+See [the architecture guide](MULTI_AGENT_ARCHITECTURE_RU.md).
+
 ## GitHub tracking
 
 - [Metadata preservation regression and fix (#1)](https://github.com/terfo1/deception-detection-prototype/issues/1)

@@ -1,9 +1,15 @@
 # Contributing
 
+Read [AGENTS.md](AGENTS.md), [project context](docs/PROJECT_CONTEXT.md), and
+[work status](docs/WORK_STATUS.md) before changing the project. Update work status
+after meaningful work and record accepted design choices in
+[the decision log](docs/DECISIONS.md). Research runs should use
+[the experiment record template](docs/templates/EXPERIMENT_RECORD.md).
+
 Create a branch for each change and connect it to a GitHub issue:
 
 ```bash
-git switch -c fix/issue-1-segmentation
+git switch -c codex/issue-1-segmentation
 python -m pip install -e '.[dev]'
 python -m ruff check .
 python -m pytest -m 'not deep'

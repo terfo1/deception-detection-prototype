@@ -26,16 +26,18 @@ class TabularEyeTrackingAdapter:
         pattern = f"**/{self.spec.file_pattern}" if recursive else self.spec.file_pattern
         return sorted(raw_dir.glob(pattern))
 
-    def load_file(self, path: Path) -> pd.DataFrame:
+    def load_file(self, path: Path, *, for_inference: bool = False) -> pd.DataFrame:
         if self.spec.reader == "excel":
             frame = pd.read_excel(path)
         elif self.spec.reader == "csv":
             frame = pd.read_csv(path)
         else:
             raise ValueError(f"Unsupported reader: {self.spec.reader}")
-        return self.normalize_schema(frame, source_path=path)
+        return self.normalize_schema(frame, source_path=path, for_inference=for_inference)
 
-    def normalize_schema(self, frame: pd.DataFrame, source_path: Path) -> pd.DataFrame:
+    def normalize_schema(
+        self, frame: pd.DataFrame, source_path: Path, *, for_inference: bool = False
+    ) -> pd.DataFrame:
         renamed = {}
         normalized_lookup = {_normalize_name(column): column for column in frame.columns}
         for canonical, aliases in self.spec.aliases.items():
@@ -46,11 +48,23 @@ class TabularEyeTrackingAdapter:
                     break
 
         frame = frame.rename(columns=renamed).copy()
+        if for_inference:
+            # Never pass ground truth to dataset-specific inference processing.
+            frame = frame.drop(columns=["label"], errors="ignore")
         for column in CANONICAL_COLUMNS:
             if column not in frame.columns:
                 frame[column] = pd.NA
 
+        if for_inference:
+            # Require explicit participant/trial boundaries for inference; preserve
+            # them even when a dataset hook normally derives IDs from filenames.
+            boundary_ids = frame[["participant_id", "trial_id"]].copy()
         frame = self.postprocess_schema(frame, source_path)
+
+        if for_inference:
+            frame[["participant_id", "trial_id"]] = boundary_ids
+            # No label fallback or filename-based class inference in this path.
+            return frame.drop(columns=["label"], errors="ignore")
 
         missing = [column for column in CANONICAL_COLUMNS if frame[column].isna().all()]
         if missing:

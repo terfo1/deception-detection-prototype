@@ -1,0 +1,15 @@
+# Engineering defaults, not thresholds validated for truth/lie or CIT.
+max_workflow_steps: 16
+max_retries: 2
+# Cooperative deadline checked before and after synchronous tools, not hard cancellation.
+deadline_seconds: 60.0
+min_samples: 16
+max_missing_ratio: 0.2
+validity_min: 0.5
+tracking_confidence_min: null
+sampling_jitter_warning: 0.2
+expected_sampling_hz: null
+gaze_bounds: null
+pupil_bounds: null
+# No validated confidence threshold currently available; verification is INCONCLUSIVE.
+min_model_confidence: null

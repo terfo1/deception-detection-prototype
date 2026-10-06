@@ -45,9 +45,11 @@ def _compute_dynamics(group: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
     return velocity, acceleration
 
 
-def create_aggregated_features(frame: pd.DataFrame) -> pd.DataFrame:
+def create_aggregated_features(frame: pd.DataFrame, *, include_labels: bool = True) -> pd.DataFrame:
     """Aggregate trial-level features from preprocessed gaze streams."""
-    required = {"participant_id", "trial_id", "label", "stimulus_id"}
+    required = {"participant_id", "trial_id", "stimulus_id"}
+    if include_labels:
+        required.add("label")
     missing = sorted(required - set(frame.columns))
     if missing:
         raise ValueError(f"Aggregated feature generation requires columns {missing}, got {list(frame.columns)}")
@@ -59,7 +61,10 @@ def create_aggregated_features(frame: pd.DataFrame) -> pd.DataFrame:
         record: dict[str, float | int | str] = {
             "participant_id": participant_id,
             "trial_id": trial_id,
-            "label": int(group["label"].mode(dropna=True).iloc[0]) if group["label"].notna().any() else 0,
+        }
+        if include_labels:
+            record["label"] = int(group["label"].mode(dropna=True).iloc[0]) if group["label"].notna().any() else 0
+        record.update({
             "stimulus_id": group["stimulus_id"].dropna().iloc[0] if group["stimulus_id"].notna().any() else "unknown",
             "n_samples": int(len(group)),
             "trial_duration": float(group["timestamp"].max() - group["timestamp"].min())
@@ -71,7 +76,7 @@ def create_aggregated_features(frame: pd.DataFrame) -> pd.DataFrame:
             "fixation_count_estimate": int(
                 (np.sqrt(np.diff(np.nan_to_num(group["gaze_x"]), prepend=0.0) ** 2 + np.diff(np.nan_to_num(group["gaze_y"]), prepend=0.0) ** 2) < 0.02).sum()
             ),
-        }
+        })
         record.update(_safe_stats(group["gaze_x"], "gaze_x"))
         record.update(_safe_stats(group["gaze_y"], "gaze_y"))
         record.update(_safe_stats(group["pupil"], "pupil"))

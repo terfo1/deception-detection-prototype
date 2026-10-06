@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eye Tracking · Демонстрация агентов</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1220;--card:#141e30;--line:#28364d;--text:#edf3ff;--muted:#9eadc4;--accent:#6cddc5;--warn:#ffd17b;--error:#ff8b96}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0,#163048 0,transparent 52%),var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1370px;margin:auto;padding:34px 38px}header{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:25px}.eyebrow{color:var(--accent);letter-spacing:.16em;font-size:11px;font-weight:700;text-transform:uppercase}h1{font-size:34px;line-height:1.2;letter-spacing:-.03em;margin:9px 0}h2{font-size:19px;margin:0 0 15px}p{margin:7px 0}.muted{color:var(--muted)}.pill{padding:6px 12px;border:1px solid var(--line);border-radius:20px;font-size:12px;white-space:nowrap}
+.notice{border-left:3px solid var(--warn);background:#ffd17b09;padding:12px 17px;margin-bottom:24px;color:#d8e1ef;font-size:13px}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}select,button{font:inherit;color:var(--text);background:#1b2940;border:1px solid #374a66;border-radius:9px;padding:10px 14px}select{min-width:300px}button{cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.4;cursor:default}.primary{background:var(--accent);color:#092720;border-color:var(--accent);font-weight:700}.toolbar .spacer{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:23px}.workflow{margin:20px 0}.flow-header{display:flex;justify-content:space-between;gap:20px}.coordinator{color:var(--accent);font-size:12px;letter-spacing:.08em}.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:19px 0}.stage{position:relative;min-height:115px;border:1px solid var(--line);background:#101a2b;border-radius:10px;padding:14px;color:var(--muted)}.stage .num{font:11px ui-monospace,monospace;color:#687e9e;margin-bottom:8px}.stage strong{display:block;color:inherit;font-size:14px}.stage small{display:block;margin-top:7px}.stage.done{border-color:#387e74;color:var(--text);background:#163130}.stage.failed{border-color:#a64b58;background:#352028;color:var(--text)}.stage.skipped{opacity:.55}.progress{height:4px;border-radius:4px;background:var(--line);overflow:hidden}.progress span{display:block;height:100%;background:var(--accent);transition:width .3s}.stage.current{box-shadow:0 0 0 2px var(--accent)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.metric{padding:18px 21px}.metric label{display:block;color:var(--muted);font-size:12px}.value{font-size:24px;line-height:1.35;margin:7px 0;font-weight:650}.hint{font-size:12px;color:var(--muted)}.good{color:var(--accent)}.warn{color:var(--warn)}.bad{color:var(--error)}.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:18px}.span2{grid-column:1/-1}.probability{margin:12px 0}.bar-label{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:6px}.track{height:9px;border-radius:6px;background:#26354d;overflow:hidden}.track span{display:block;height:100%;background:var(--accent);border-radius:6px}.stats .track{height:6px}.stats .probability{margin:11px 0}.stats .bar-label{font-size:12px}.reason{border-left:2px solid var(--warn);padding:7px 12px;background:#ffd17b06;margin-top:12px;font-size:13px}.empty{padding:20px 0;color:var(--muted)}.table-scroll{max-height:300px;overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500;background:var(--card);position:sticky;top:0}td:last-child{font-variant-numeric:tabular-nums}details{margin-top:13px}summary{cursor:pointer;color:var(--muted);font-size:13px}.plain-list{padding-left:19px;font-size:13px;color:var(--muted)}footer{color:var(--muted);font-size:12px;margin-top:22px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.print-only{display:none}
+@media(max-width:1000px){main{padding:22px}.flow{grid-template-columns:repeat(3,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.span2{grid-column:auto}}@media(max-width:600px){header{display:block}h1{font-size:28px}.pill{display:inline-block;margin-top:10px}.flow{grid-template-columns:repeat(2,1fr)}main{padding:16px}select{min-width:0;width:100%}.toolbar label{width:100%}.metrics{gap:9px}.value{font-size:18px}.card{padding:16px}.flow-header{display:block}}@media print{body{background:white;color:#152137}.card,.stage{background:white!important;color:#152137!important;border-color:#ccc}.muted,.hint,th,footer{color:#475369}.toolbar button{display:none}.table-scroll{max-height:none}.notice{color:#475369}.print-only{display:block}.grid{display:block}.card{break-inside:avoid;margin-bottom:14px}main{padding:0}.flow{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">Eye tracking · multi-agent workflow</div><h1>От сигнала к проверенному отчёту</h1><p class="muted">Шесть специализированных агентов. Один управляемый процесс.</p></div><span class="pill" id="target">Offline analysis</span></header>
+<div class="notice" id="notice">Просмотр сохранённого запуска. Анимация журнала замедлена для объяснения; физический live не демонстрируется.</div>
+<div class="toolbar"><label for="scenario" class="muted">Сценарий</label><select id="scenario" aria-label="Выбор сценария"></select><button class="primary" id="play">▶ Показать по шагам</button><button id="next">Следующий шаг →</button><button id="reset">Сначала</button><span class="spacer"></span><button id="finish">Все результаты</button><button id="download">Скачать отчёт</button></div>
+<p id="description" class="muted"></p>
+<section class="card workflow" aria-label="Последовательность агентов"><div class="flow-header"><h2>Workflow</h2><div class="coordinator">ORCHESTRATOR · переходы / лимиты / обработка ошибок</div></div><div class="flow" id="flow"></div><div class="progress"><span id="progress"></span></div><p class="hint" id="step-label" aria-live="polite"></p></section>
+<div class="metrics">
+<div class="card metric"><label>Выполнение workflow</label><div class="value" id="workflow-status">—</div><div class="hint" id="workflow-hint"></div></div>
+<div class="card metric"><label>Качество сигнала</label><div class="value" id="quality-score">—</div><div class="hint" id="quality-hint"></div></div>
+<div class="card metric"><label>Время накопления данных</label><div class="value" id="window-time">—</div><div class="hint">По timestamp выбранного окна</div></div>
+<div class="card metric"><label>Модель: загрузка и inference</label><div class="value" id="model-time">—</div><div class="hint">Отдельно от накопления окна</div></div>
+</div>
+<div class="grid">
+<section class="card"><h2>Предсказание и проверка</h2><div id="prediction"></div><div id="verification"></div><div id="errors"></div></section>
+<section class="card stats"><h2>Распределение вызовов</h2><p class="hint">Agent + tool calls. Это число вызовов, не загрузка CPU.</p><div id="stats"></div><p class="hint" id="stats-summary"></p></section>
+<section class="card"><h2>Извлечённые признаки</h2><div id="features"></div></section>
+<section class="card"><h2>Журнал выполнения</h2><div class="table-scroll"><table><thead><tr><th>Агент / инструмент</th><th>Статус</th><th>Время, мс</th></tr></thead><tbody id="logs"></tbody></table></div><details><summary>Качество, параметры и ограничения</summary><div id="parameters"></div></details></section>
+</div>
+<footer><span>Человек не классифицируется как «лжец». Отображается output модели заданного экспериментального класса.</span><span id="run-id"></span></footer>
+</main>
+<script type="application/json" id="demo-data">__WORKFLOW_PAYLOAD__</script>
+<script>
+"use strict";
+const scenarios=JSON.parse(document.getElementById("demo-data").textContent);
+const stages=[
+ ["DATA_ACQUISITION","DataAcquisitionAgent","Получение данных","Источник → типизированное окно"],
+ ["QUALITY_CHECK","SignalQualityAgent","Качество сигнала","Пропуски, валидность, время"],
+ ["FEATURE_EXTRACTION","FeatureExtractionAgent","Извлечение признаков","Существующий preprocessing"],
+ ["PREDICTION","PredictionAgent","Предсказание","Сохранённая ML-модель"],
+ ["VERIFICATION","VerificationAgent","Проверка результата","Явная политика принятия"],
+ ["REPORT","ReportAgent","Итоговый отчёт","Результаты, ошибки, ограничения"]
+];
+const $=id=>document.getElementById(id);
+const translations={COMPLETED:"Завершено",FAILED:"Ошибка обработана",RUNNING:"Выполняется",ACCEPTED:"Принято",WARNING:"Предупреждение",REJECTED:"Отклонено",INCONCLUSIVE:"Недостаточно оснований",SUCCESS:"Выполнено"};
+const reasons={model_confidence_policy_unspecified:"Научный порог уверенности не задан: результат остаётся INCONCLUSIVE.",below_configured_model_confidence:"Уверенность ниже установленного инженерного порога.",signal_quality_warning:"Есть предупреждение о качестве сигнала.",recovered_errors_present:"Выполнение восстановилось после ошибки.",model_confidence_unavailable:"Модель не предоставляет вероятность класса.",SIGNAL_QUALITY_REJECTED:"Сигнал не прошёл проверку качества. Предсказание заблокировано.",MODEL_CHECKSUM_MISMATCH:"Checkpoint не соответствует контракту модели. Результат не выдан.",too_few_valid_samples:"Недостаточно валидных отсчётов.",excess_missing_or_invalid_samples:"Слишком много пропусков или некорректных значений.",coordinate_bounds_unspecified:"Физические границы координат не заданы.",pupil_upper_bound_unspecified:"Верхняя физическая граница pupil не задана."};
+let selected=0,shown=0,timer=null;
+const fmt=(n,d=2)=>Number(n).toLocaleString("ru-RU",{maximumFractionDigits:d});
+function node(tag,text,className){const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(className)element.className=className;return element;}
+function set(id,text,className){$(id).textContent=text;if(className)$(id).className=className;}
+function executions(){return scenarios[selected].events.filter(e=>e.kind==="agent"&&e.agent_name!=="Orchestrator").sort((a,b)=>a.start_time.localeCompare(b.start_time));}
+function stop(){if(timer!==null)clearInterval(timer);timer=null;$("play").textContent="▶ Показать по шагам";}
+function advance(){if(shown<executions().length)shown++;render();if(shown===executions().length)stop();}
+function bar(parent,label,value,max,suffix,color){const wrap=node("div",undefined,"probability");const heading=node("div",undefined,"bar-label");heading.append(node("span",label),node("span",fmt(value)+suffix));const track=node("div",undefined,"track");const fill=node("span");fill.style.width=Math.max(0,Math.min(100,100*value/max))+"%";if(color)fill.style.background=color;track.append(fill);wrap.append(heading,track);parent.append(wrap);}
+function list(parent,values){const ul=node("ul",undefined,"plain-list");for(const value of values)ul.append(node("li",reasons[value]||value));parent.append(ul);}
+function render(){
+ const data=scenarios[selected],report=data.report,events=executions(),visible=events.slice(0,shown),complete=shown===events.length;
+ const done=step=>visible.some(e=>e.step===step);
+ const quality=done("QUALITY_CHECK")?report.quality:null,prediction=done("PREDICTION")?report.prediction:null,verification=done("VERIFICATION")?report.verification:null;
+ set("description",data.description);set("target",data.provenance.model_contract.target==="synthetic_debug"?"СИНТЕТИЧЕСКОЕ DEMO · OFFLINE":"СОХРАНЁННЫЙ ЗАПУСК · OFFLINE");
+ set("notice",data.provenance.model_contract.target==="synthetic_debug"?"Синтетические данные: показываем архитектуру, а не научную точность. Анимация сохранённого журнала замедлена для объяснения; это не live.":"Просмотр сохранённого запуска. Анимация журнала замедлена для объяснения; физический live не демонстрируется.");
+ $("flow").replaceChildren();
+ for(const [step,name,title,caption] of stages){const event=visible.filter(e=>e.step===step).at(-1);const rejected=step==="QUALITY_CHECK"&&report.quality?.status==="REJECTED";const stage=node("div",undefined,"stage"+(event?(event.status==="FAILED"||rejected?" failed":" done"):complete?" skipped":""));if(event&&visible.at(-1)===event&&!complete)stage.classList.add("current");stage.append(node("div",String(stages.findIndex(s=>s[0]===step)+1).padStart(2,"0"),"num"),node("strong",title),node("small",event?fmt(event.duration_ms)+" мс · "+(rejected?"Сигнал отклонён":translations[event.status]||event.status):complete?"Этап не вызывался":caption));stage.title=name;$("flow").append(stage);}
+ $("progress").style.width=(events.length?100*shown/events.length:100)+"%";
+ set("step-label",complete?"Показ завершён · "+report.step_count+" вызовов агентов · повторы: "+report.retry_count:"Показ журнала: "+shown+" / "+events.length+" · время анимации не является задержкой системы");
+ set("workflow-status",complete?translations[report.status]:shown?"Показ этапов":"Готово к показу","value "+(complete?(report.status==="FAILED"?"bad":"good"):""));
+ set("workflow-hint",complete?"COMPLETED ≠ подтверждённая достоверность":"Вычисления уже сохранены в журнале");
+ set("quality-score",quality?fmt(quality.quality_score*100,1)+"%":"—","value "+(quality?(quality.status==="REJECTED"?"bad":"good"):""));
+ set("quality-hint",quality?quality.valid_samples+" / "+quality.total_samples+" валидных · "+quality.status:"Ожидается шаг проверки");
+ set("window-time",quality?fmt(quality.accumulation_time_ms)+" мс":"—");set("model-time",prediction?fmt(prediction.inference_time_ms)+" мс":"—");
+ $("prediction").replaceChildren();$("verification").replaceChildren();$("errors").replaceChildren();
+ if(prediction){$("prediction").append(node("p","Предсказанный класс: "+prediction.predicted_class,"good"),node("p",prediction.model_version,"hint"));if(prediction.probabilities)for(const [key,value]of prediction.probabilities)bar($("prediction"),"Класс "+key+" · "+(prediction.class_meanings.find(pair=>pair[0]===key)?.[1]||""),100*value,100,"%");else $("prediction").append(node("p","Вероятности этой моделью не предоставлены.","muted"));$("prediction").append(node("p","Model output не является калиброванной достоверностью.","hint"));}
+ else $("prediction").append(node("p",complete?"Предсказание отсутствует.":"Результат появится после шага Prediction.","empty"));
+ if(verification){$("verification").append(node("p",verification.status+" · "+translations[verification.status],verification.status==="ACCEPTED"?"good":"warn"));list($("verification"),verification.reasons);}
+ if(complete&&report.errors.length)for(const error of report.errors)$("errors").append(node("p",reasons[error.code]||error.code,"reason bad"));
+ $("stats").replaceChildren();
+ // Partial counts follow actual completed executions; terminal counts include Orchestrator.
+ const displayed=complete?data.events:data.events.filter(e=>visible.some(a=>e.agent_name===a.agent_name&&e.step===a.step&&e.retry_attempt===a.retry_attempt));
+ const counts=new Map();for(const event of displayed)counts.set(event.agent_name,(counts.get(event.agent_name)||0)+1);
+ for(const name of ["Orchestrator",...stages.map(s=>s[1])]){const count=counts.get(name)||0;if(count)bar($("stats"),name+" · "+count+" выз.",100*count/displayed.length,100,"%");}
+ if(!displayed.length)$("stats").append(node("p","Начните пошаговый показ.","empty"));
+ set("stats-summary",complete?"Всего "+displayed.length+" вызовов. Максимальная доля "+fmt(100*Math.max(...counts.values())/displayed.length)+"%.":"Промежуточные значения: доли изменяются по мере показа.");
+ $("features").replaceChildren();
+ if(done("FEATURE_EXTRACTION")&&report.features){const features=report.features;$("features").append(node("p",features.names.length+" признаков · "+features.sample_count+" samples после обработки","hint"));const scroll=node("div",undefined,"table-scroll"),table=node("table"),body=node("tbody");for(let i=0;i<features.names.length;i++){const tr=node("tr");tr.append(node("td",features.names[i]),node("td",features.kind==="aggregated"?fmt(features.values[0][i],5):"sequence channel"));body.append(tr);}table.append(body);scroll.append(table);$("features").append(scroll);}
+ else $("features").append(node("p",complete?"Признаки не извлекались.":"Признаки появятся после шага Feature Extraction.","empty"));
+ $("logs").replaceChildren();for(const event of displayed){const tr=node("tr");tr.append(node("td",event.tool||event.agent_name),node("td",event.status,event.status==="FAILED"?"bad":"good"),node("td",fmt(event.duration_ms)));$("logs").append(tr);}
+ $("parameters").replaceChildren();if(quality)list($("parameters"),[...quality.reasons,...quality.unavailable_checks]);const cfg=data.provenance.config;$("parameters").append(node("p","Лимит этапов: "+cfg.max_workflow_steps+" · повторов: "+cfg.max_retries+" · дедлайн: "+cfg.deadline_seconds+" с","hint"));$("parameters").append(node("p","Порог confidence модели: "+(cfg.min_model_confidence===null?"не задан":cfg.min_model_confidence)+". Пороги — инженерная политика.","hint"));
+ set("run-id","Run: "+data.provenance.run_id.slice(0,12));$("next").disabled=complete;$("download").disabled=!complete;
+}
+scenarios.forEach((scenario,index)=>{const option=node("option",scenario.title);option.value=index;$("scenario").append(option);});
+$("scenario").addEventListener("change",()=>{stop();selected=Number($("scenario").value);shown=0;render();});
+$("play").addEventListener("click",()=>{if(timer!==null){stop();return;}if(shown===executions().length)shown=0;$("play").textContent="Ⅱ Пауза";advance();if(shown<executions().length)timer=setInterval(advance,1000);});
+$("next").addEventListener("click",()=>{stop();advance();});$("reset").addEventListener("click",()=>{stop();shown=0;render();});$("finish").addEventListener("click",()=>{stop();shown=executions().length;render();});
+$("download").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(scenarios[selected].report,null,2)],{type:"application/json;charset=utf-8"});const url=URL.createObjectURL(blob);const anchor=node("a");anchor.href=url;anchor.download="session-report-"+selected+".json";document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+render();
+</script>
+</body>
+</html>
