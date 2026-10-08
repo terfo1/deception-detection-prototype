@@ -1,6 +1,6 @@
 # Контекст и карта проекта
 
-Обновлено: 2026-10-06. Оперативное состояние — в [WORK_STATUS.md](WORK_STATUS.md).
+Обновлено: 2026-10-08. Оперативное состояние — в [WORK_STATUS.md](WORK_STATUS.md).
 
 ## Цель
 
@@ -14,6 +14,7 @@
 |---|---|---|
 | Данные | `src/data/schema.py`, `adapters.py`, `loaders.py`, `synthetic.py` | Схема, XLSX/CSV, synthetic |
 | Обработка | `src/features/preprocessing.py` | Валидность, интерполяция, smoothing, normalization |
+| Assignment 3 | `src/eye_tracking_analysis/`, `examples/eye_tracking_analysis_demo.py` | Строгий label-free CSV, participant/session/trial, offline event estimates, quality, график, защищённый экспорт |
 | Признаки | `src/features/aggregated.py`, `windowing.py` | Trial aggregates и окна внутри trial |
 | Модели | `src/models/baselines.py`, `sequence.py` | Классические модели, LSTM, TCN |
 | Обучение | `src/training/pipelines.py`, `trainer.py`, `datasets.py` | Splits, training, checkpoints |
@@ -45,6 +46,8 @@
 .venv/Scripts/python.exe examples/multi_agent_demo.py
 .venv/Scripts/python.exe examples/multi_agent_demo.py --open
 .venv/Scripts/python.exe -m src.agents.cli --help
+.venv/Scripts/python.exe examples/eye_tracking_analysis_demo.py
+.venv/Scripts/python.exe -m src.eye_tracking_analysis.cli --help
 .venv/Scripts/python.exe -m build
 ```
 
@@ -77,6 +80,7 @@ Synthetic training CLI пишет в `outputs/synthetic_demo` и может пе
 - [Агентная архитектура](MULTI_AGENT_ARCHITECTURE_RU.md) — дополнительный слой вне плана, CLI и контракты.
 - [Наглядный показ](DEMO_GUIDE_RU.md) — запуск одной командой, автономный HTML и сценарий объяснения.
 - [Шаблон эксперимента](templates/EXPERIMENT_RECORD.md) — воспроизводимость.
+- [Assignment 3](assignment_3/GUIDE_RU.md) — отдельное учебное поручение, новые offline методы и 10-страничный английский отчёт; основной научный план не закрыт.
 - PROJECT_REPORT и ASSIGNMENT_RU — исторические материалы учебного задания; не полный план диссертации.
 
 PDF вне репозитория: `C:/Users/LEGION/Downloads/Springer_Nature_LaTeX_Template__1_.pdf`; на другой машине его наличие не гарантировано. План содержит извлечённый предметный контекст. Только подтверждённое поведение описывать как реализованное.
