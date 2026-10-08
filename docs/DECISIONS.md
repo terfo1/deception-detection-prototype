@@ -1,6 +1,6 @@
 # Решения и открытые вопросы
 
-Обновлено: 2026-10-06. Различать цель пользователя, инженерное правило и предложение. Новую запись снабжать датой, основанием и последствиями; заменённую помечать superseded.
+Обновлено: 2026-10-08. Различать цель пользователя, инженерное правило и предложение. Новую запись снабжать датой, основанием и последствиями; заменённую помечать superseded.
 
 ## Подтверждённые цели
 
@@ -55,6 +55,22 @@ portable HTML без backend/server и новых runtime-зависимосте
 Однокнопочный Windows launcher использует проектную `.venv`. Готовый HTML
 можно передать отдельным файлом. Это демонстрационный viewer, не принятие
 полноценного UI/устройства из основного плана. Инструкция: [DEMO_GUIDE_RU.md](DEMO_GUIDE_RU.md).
+
+### D-009 — Строгий offline analysis для Assignment 3
+
+Инженерное решение по отдельному заданию пользователя 2026-10-08, вне основного
+плана. Новая небольшая область `src/eye_tracking_analysis/` использует существующие
+NumPy/pandas/Matplotlib, но не вызывает permissive legacy preprocessing:
+обязательные participant/session/trial, явные единицы, строгие timestamps,
+ограниченная offline interpolation, time-window mean и фиксированная геометрия
+screen normalization. Velocity events — инженерные оценки с явными порогами;
+blink только из наблюдений, отсутствующие temporal measurements не подставляются.
+Labels не используются. Оригинальные модели/обучение не изменены. Новых runtime
+dependencies нет. CI запускает новый synthetic пример; deep — manual/tag,
+release требует отдельного `ENABLE_RELEASE=true`. Никаких remote settings/push
+или публикации не выполнено. Это не принятие научного threshold/метрики,
+не causal/live readiness и не закрытие PIPE-01/DATA-03. Основание и контракт:
+[Assignment 3](assignment_3/GUIDE_RU.md).
 
 ## Ещё не утверждено
 

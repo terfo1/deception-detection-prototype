@@ -1,8 +1,79 @@
 # Состояние и очередь
 
-Обновлено: 2026-10-06. Обновлять после существенной задачи; не хранить стенограмму.
+Обновлено: 2026-10-08. Обновлять после существенной задачи; не хранить стенограмму.
 
 ## Последняя задача
+
+Выполнен Assignment 3 (2026-10-08), отдельное поручение вне основного плана.
+Ветка `feature/assignment-3`; добавлены `src/eye_tracking_analysis/`, synthetic
+пример, 35 численных/граничных/integration tests, entry point, README/guide,
+локальные Issue-drafts/template и CI-интеграция. Legacy модели/обучение/данные
+не изменены; новых runtime-зависимостей нет. D-009 фиксирует offline-контракт.
+
+Свежие проверки через `.venv`:
+
+```powershell
+.venv/Scripts/python.exe -m pytest -p no:cacheprovider --basetemp outputs/assignment-3-check-20261008-02/pytest-temp --cov=src --cov-report=xml:outputs/assignment-3-check-20261008-02/coverage.xml --junitxml=outputs/assignment-3-check-20261008-02/all.xml
+.venv/Scripts/python.exe -m ruff check .
+.venv/Scripts/python.exe -m pip check
+.venv/Scripts/python.exe examples/eye_tracking_analysis_demo.py --output-dir outputs/assignment-3-demo-20261008-01
+.venv/Scripts/python.exe -m build --no-isolation --outdir outputs/assignment-3-check-20261008-02/dist
+```
+
+Полный pytest вне песочницы: **97 passed in 56.89s**, включая deep regressions;
+coverage 88.61% строк (1681/1897), не scientific accuracy. Ruff и pip check —
+exit 0. Пример: 42 synthetic samples, 100 Hz, 2 фиксации, mean duration 0.195 s,
+1 саккада amplitude 5 degrees / peak velocity 250 degrees/s, dispersion 2.469341;
+blink unavailable. Артефакты и EXPERIMENT_RECORD сохранены в новом demo-каталоге.
+Build вне песочницы — wheel/sdist, exit 0; финальный rebuild с документацией —
+`outputs/assignment-3-check-20261008-03/dist/`. YAML локально прочитан через
+PyYAML BaseLoader, проверены trigger/CLI/deep/release conditions. Песочница
+снова дала WinError 5 в pytest-temp и build temp; старые каталоги не удалялись.
+Проверены wheel entry point/module и наличие report source/scripts в sdist;
+outputs/raw/.venv в пакеты не включены. Проверено 53 локальные Markdown-ссылки,
+все DOCX XML parts и локальные hyperlink targets; сломанных нет. Ruff и
+git diff --check после документации — exit 0. Проверка типовых secret patterns
+в новых файлах совпадений не нашла; это не гарантия полного security audit.
+
+Английский отчёт: исходник `docs/assignment_3/ASSIGNMENT_3_REPORT_EN.md`,
+финальные DOCX/PDF в `outputs/assignment-3-report-20261008-03/`.
+10 страниц, Times New Roman 12 pt, 1.5 spacing, body justified, 13 проверенных
+источников. Создание — bundled python-docx, native экспорт отдельного скрытого
+Word, PNG через Poppler; все 10 страниц визуально проверены. Штатный
+render_docx.py не смог конвертировать из-за отсутствия LibreOffice; первая
+sandbox COM activation не прошла, native экспорт вне песочницы выполнен.
+Пагинация подтверждена по PDF, не по предварительному Word statistics.
+
+Локальные коммиты разделяют implementation/tests, CI и docs; пользовательская
+исходная правка этого WORK_STATUS сохранена и в коммиты не включена. Generated
+outputs/данные не закоммичены. Push, Issues/PR/release и remote CI не выполнены;
+pending URLs в отчёте обозначены явно. Основной план не помечен завершённым.
+Следующее внешнее действие — только после разрешения: push/PR и подтверждённый
+GitHub run. Следующий научный шаг остаётся SPEC-01/DATA-02, затем причинность
+и строгие legacy labels; новое event detection требует annotated validation.
+
+## Предыдущая задача Word-отчёта
+
+Создан английский Word-отчёт по отдельному запросу пользователя:
+`outputs/report-word-20261006-01/Multi_Agent_System_Report_EN.docx`.
+Первая строка — активная ссылка на repository origin; описаны шесть агентов и
+Orchestrator, typed contracts, workflow, model inference, quality/verification,
+failures/limits, reports/logs, распределение calls, запуск и научные ограничения.
+Разметка на три страницы A4 с двумя явными page breaks; исторические 60/38
+passing tests обозначены прежними проверками, новые ML-тесты не запускались.
+
+Документ создан стандартным OOXML с bundled Node, без изменения зависимостей
+или научного кода. Проверены 9 XML parts, первая строка/hyperlink и два page breaks.
+Сопутствующий HTML-предпросмотр с той же геометрией и содержимым отрендерен в Edge;
+визуально проверены все три PNG, переполнения нет. Native DOCX render не выполнен:
+workspace dependency loader/bundled Python/LibreOffice недоступны, у packaged
+render_docx.py запуск через существующую .venv завершился ModuleNotFoundError
+для pdf2image. Поэтому точная пагинация Microsoft Word не подтверждена;
+предпросмотр не выдаётся за native DOCX render. QA intermediates сохранены в том
+же output-каталоге; пользователю передаётся только DOCX. Следующий научный шаг
+не изменён. Коммит/push не выполнялись.
+
+## Предыдущая задача наглядной демонстрации
 
 Подготовлен наглядный показ агентного слоя (2026-10-06): автономный HTML с
 пошаговым просмотром сохранённых agent executions, probability outputs,
