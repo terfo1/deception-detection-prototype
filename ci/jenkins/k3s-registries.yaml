@@ -1,0 +1,5 @@
+# containerd in k3s pulls lab images from the plain-HTTP registry service.
+mirrors:
+  "registry:5000":
+    endpoint:
+      - "http://registry:5000"

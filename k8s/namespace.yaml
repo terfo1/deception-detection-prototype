@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eye-tracking-test
+  labels:
+    app.kubernetes.io/part-of: eye-tracking-research
+    purpose: assignment5-test-environment

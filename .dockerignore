@@ -1,0 +1,25 @@
+# Allow-list: never send local datasets, archives, credentials or Git history.
+**
+!Dockerfile
+!pyproject.toml
+!MANIFEST.in
+!README.md
+!LICENSE
+!CONTRIBUTING.md
+!requirements/
+!requirements/*.txt
+!src/
+!src/**
+!tests/
+!tests/**
+!configs/
+!configs/*.yaml
+!scripts/
+!scripts/*.py
+!examples/
+!examples/*.py
+!examples/*.cmd
+!ci/
+!ci/test.sh
+**/__pycache__/
+**/*.pyc

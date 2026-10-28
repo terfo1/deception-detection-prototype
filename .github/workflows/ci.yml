@@ -2,7 +2,7 @@ name: CI and release
 
 on:
   push:
-    branches: [main, 'feature/assignment-3']
+    branches: [main, 'feature/assignment-3', 'codex/**']
     tags: ['v*']
   pull_request:
     branches: [main]
@@ -101,10 +101,41 @@ jobs:
           name: distribution
           path: dist/
 
+  container:
+    name: Docker build, tests and smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build test image
+        run: docker build --pull --target test --build-arg VCS_REF=$GITHUB_SHA -t eye-tracking-ci:actions .
+      - name: Run shared quality gates
+        run: |
+          mkdir -p test-results
+          docker create --name eye-ci eye-tracking-ci:actions
+          status=0
+          docker start -a eye-ci || status=$?
+          docker cp eye-ci:/app/test-results/. test-results/
+          docker rm eye-ci
+          exit "$status"
+      - name: Build runtime image and run synthetic analysis
+        run: |
+          docker build --target runtime --build-arg VCS_REF=$GITHUB_SHA -t eye-tracking:actions .
+          docker create --name eye-smoke eye-tracking:actions --output-dir /app/outputs/smoke
+          docker start -a eye-smoke
+          docker cp eye-smoke:/app/outputs/smoke test-results/synthetic-smoke
+          docker rm eye-smoke
+          docker image inspect eye-tracking:actions > test-results/runtime-image.json
+          git rev-parse HEAD > test-results/revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-verification
+          path: test-results/
+
   release:
     name: Publish GitHub Release
     if: startsWith(github.ref, 'refs/tags/v') && vars.ENABLE_RELEASE == 'true'
-    needs: [core, deep, package]
+    needs: [core, deep, package, container]
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -1,0 +1,6 @@
+**
+!ci/
+!ci/jenkins/
+!ci/jenkins/Dockerfile
+!ci/jenkins/plugins.txt
+!ci/jenkins/init.groovy
