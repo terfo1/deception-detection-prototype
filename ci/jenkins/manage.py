@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import http.client
 import http.cookiejar
 import json
 import secrets
@@ -57,7 +58,7 @@ def main():
                 read_json(opener, "/api/json")
                 print(f"Jenkins ready: {BASE}{JOB}/ (user research-admin; password in ignored .env)")
                 return
-            except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+            except (OSError, http.client.HTTPException, json.JSONDecodeError):
                 time.sleep(2)
         raise TimeoutError("Jenkins did not become ready within four minutes")
     opener = client()

@@ -28,7 +28,7 @@ Useful outputs include JUnit test results, coverage XML, the resolved package li
 
 For the local lab, Jenkins polls Git every two minutes because the controller is bound to loopback and is not reachable by a public webhook. Polling can combine several commits into one latest-revision build [2]. The GitHub Actions push workflow adds automatic hosted checks. Exact one-build-per-commit operation would require an event queue or webhook and an always-available agent; this lab should not claim that guarantee. Each actual build still identifies the precise revision it tested.
 
-Continuous delivery here ends at a locally built, smoke-tested image and downloadable verification artifacts. Docker Hub upload and Kubernetes deployment are optional assignment extensions and are not required for the offline tool. Avoiding automatic external publication also keeps the experimenter in control of which model or result becomes a public release.
+Continuous delivery here produces a smoke-tested image tagged with the Git revision, pushes it to a private lab registry and deploys it to a Kubernetes test namespace. Publication to Docker Hub is implemented as a stage that runs only when a repository name and a Jenkins credential are configured. Keeping external publication opt-in leaves the experimenter in control of which model or result becomes public.
 
 <!-- page -->
 
@@ -44,11 +44,11 @@ A concrete Docker example is executing the known 3-4-5 gaze displacement demonst
 
 Kubernetes schedules containers across machines. Its Job controller is appropriate for finite tasks, such as running a frozen model on several approved recordings or evaluating predeclared participant folds [5]. Each fold must receive its own output location and keep all sessions of a participant in one group. Cluster scheduling does not create statistically independent participants or prevent leakage by itself. Resource requests and access controls would also be needed before using sensitive data.
 
-For this small CPU-only demonstration, a Kubernetes cluster would add operational work without testing a new scientific claim. Kubernetes is therefore analyzed as an extension rather than installed merely to show another tool. Docker handles the environment, Jenkins handles the workflow and Git identifies the code; their roles are complementary.
+In this project a single-node k3s cluster acts as the test environment. Jenkins applies a Job manifest that runs the revision-tagged image as a non-root container with a read-only root filesystem, no service-account token and resource limits, then waits for completion and archives the logs. The cluster verifies deployability, not a new scientific claim. Docker handles the environment, Jenkins the workflow, Kubernetes the execution and Git identifies the code; their roles are complementary.
 
 <!-- page -->
 
-## 4. Reproducibility limits and conclusions
+## 4. Conclusion: what DevOps solves in scientific teams
 
 Automation addresses inconsistent environments, forgotten validation steps, opaque artifacts and slow discovery of regressions. It also improves handover: the next researcher can read a pipeline and rerun its commands. The strongest practical result is a chain from source revision to checks, image identity and exported evidence. The assignment implements that chain for the existing offline eye-tracking prototype.
 
